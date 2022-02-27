@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { onUnmounted } from 'vue'
-import { getWordOfTheDay, allWords } from './words'
+import { getWordForTask, allWords } from './words'
 import Keyboard from './Keyboard.vue'
 import { LetterState } from './types'
 
 // Get word of the day
-const answer = getWordOfTheDay()
+const answer = getWordForTask()
 
 // Board state. Each tile is represented as { letter, state }
 const board = $ref(
@@ -43,7 +43,7 @@ onUnmounted(() => {
 
 function onKey(key: string) {
   if (!allowInput) return
-  if (/^[a-zA-Z]$/.test(key)) {
+  if (/^[а-яА-Я]$/.test(key)) {
     fillTile(key.toLowerCase())
   } else if (key === 'Backspace') {
     clearTile()
