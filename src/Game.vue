@@ -33,7 +33,7 @@ const letterStates: Record<string, LetterState> = $ref({})
 // Handle keyboard input.
 let allowInput = true
 
-const onKeyup = (e: KeyboardEvent) => onKey(e.key)
+const onKeyup = (e: KeyboardEvent) => onKey(e.key, e)
 
 window.addEventListener('keyup', onKeyup)
 
@@ -41,12 +41,14 @@ onUnmounted(() => {
   window.removeEventListener('keyup', onKeyup)
 })
 
-function onKey(key: string) {
+function onKey(key: string, e: KeyboardEvent) {
   if (!allowInput) return
   if (/^[а-яА-Я]$/.test(key)) {
     fillTile(key.toLowerCase())
   } else if (key === 'Backspace') {
     clearTile()
+    e.stopPropagation();
+    e.preventDefault();
   } else if (key === 'Enter') {
     completeRow()
   }
@@ -172,50 +174,43 @@ function genResultGrid() {
 </script>
 
 <template>
-  <Transition>
-    <div class="message" v-if="message">
-      {{ message }}
-      <pre v-if="grid">{{ grid }}</pre>
-    </div>
-  </Transition>
-  <header>
-    <h1>VVORDLE</h1>
-    <a
-      id="source-link"
-      href="https://github.com/yyx990803/vue-wordle"
-      target="_blank"
-      >Source</a
-    >
-  </header>
-  <div id="board">
-    <div
-      v-for="(row, index) in board"
-      :class="[
-        'row',
-        shakeRowIndex === index && 'shake',
-        success && currentRowIndex === index && 'jump'
-      ]"
-    >
+  <div class="game-container">
+    <Transition>
+      <div class="message" v-if="message">
+        {{ message }}
+        <pre v-if="grid">{{ grid }}</pre>
+      </div>
+    </Transition>
+    <div id="board">
       <div
-        v-for="(tile, index) in row"
-        :class="['tile', tile.letter && 'filled', tile.state && 'revealed']"
+        v-for="(row, index) in board"
+        :class="[
+          'row',
+          shakeRowIndex === index && 'shake',
+          success && currentRowIndex === index && 'jump'
+        ]"
       >
-        <div class="front" :style="{ transitionDelay: `${index * 300}ms` }">
-          {{ tile.letter }}
-        </div>
         <div
-          :class="['back', tile.state]"
-          :style="{
-            transitionDelay: `${index * 300}ms`,
-            animationDelay: `${index * 100}ms`
-          }"
+          v-for="(tile, index) in row"
+          :class="['tile', tile.letter && 'filled', tile.state && 'revealed']"
         >
-          {{ tile.letter }}
+          <div class="front" :style="{ transitionDelay: `${index * 300}ms` }">
+            {{ tile.letter }}
+          </div>
+          <div
+            :class="['back', tile.state]"
+            :style="{
+              transitionDelay: `${index * 300}ms`,
+              animationDelay: `${index * 100}ms`
+            }"
+          >
+            {{ tile.letter }}
+          </div>
         </div>
       </div>
     </div>
+    <Keyboard @key="onKey" :letter-states="letterStates" />
   </div>
-  <Keyboard @key="onKey" :letter-states="letterStates" />
 </template>
 
 <style scoped>

@@ -9,7 +9,8 @@ onResize()
 
 function onResize() {
   // get actual vh on mobile
-  document.body.style.setProperty('--vh', window.innerHeight + 'px')
+  const container = document.querySelector('.game-container') as HTMLElement | null;
+  container?.style.setProperty('--vh', window.innerHeight + 'px');
 }
 
 createApp(Game).mount('#app')
