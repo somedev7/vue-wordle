@@ -119,12 +119,13 @@ function completeRow() {
         })
         let sendStats = () => {};
         if (window.savePlayedGame) {
-            sendStats = window.savePlayedGame;
+            sendStats = () => window.savePlayedGame('/wordle');
         }
 
         allowInput = false
         if (currentRow.every((tile) => tile.state === LetterState.CORRECT)) {
             // yay!
+            sendStats()
             setTimeout(() => {
                 grid = genResultGrid()
                 showMessage(
@@ -142,9 +143,10 @@ function completeRow() {
                 allowInput = true
             }, 1600)
         } else {
+            sendStats();
             // game over :(
             setTimeout(() => {
-                showMessage(answer.toUpperCase(), -1)
+                showMessage('Было загадано: ' + answer.toUpperCase(), -1)
             }, 1600)
         }
     } else {
